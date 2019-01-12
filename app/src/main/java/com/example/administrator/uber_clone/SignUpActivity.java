@@ -1,5 +1,6 @@
 package com.example.administrator.uber_clone;
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -11,6 +12,7 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 
 import com.example.administrator.uber_clone.R;
+import com.google.android.gms.maps.model.LatLng;
 import com.parse.LogInCallback;
 import com.parse.ParseAnonymousUtils;
 import com.parse.ParseException;
@@ -35,10 +37,19 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_up);
+        if (ParseUser.getCurrentUser() != null) {
+            transitionToPassangerActivity();
+        }
         ParseInstallation.getCurrentInstallation().saveInBackground();
         initalizeAllViews();
         signup.setOnClickListener(this);
         signin.setOnClickListener(this);
+    }
+
+    private void transitionToPassangerActivity() {
+        Intent intent = new Intent(SignUpActivity.this, PassengerActivity.class);
+        startActivity(intent);
+        finish();
     }
 
     private void initalizeAllViews() {
@@ -72,25 +83,30 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.signupactivitySignIn:
-                if(choice.getText().toString().equals("Driver")  || choice.getText().toString().equals("Passenger")  ){
+                if (choice.getText().toString().equals("Driver") || choice.getText().toString().equals("Passenger")) {
                     signinAnonymousUser();
-                }else{
-                    FancyToast.makeText(SignUpActivity.this,"Type Driver or Passenger\n" +
-                                    "You type:"+choice.getText().toString(), FancyToast.LENGTH_LONG,
+                    transitionToPassangerActivity();
+                } else {
+                    FancyToast.makeText(SignUpActivity.this, "Type Driver or Passenger\n" +
+                                    "You type:" + choice.getText().toString(), FancyToast.LENGTH_LONG,
                             FancyToast.INFO, true).show();
                     return;
                 }
                 break;
             case R.id.signupactivitySignup:
-                if (signup.getText().equals("Sign up"))
-                    if (!(username.getText().equals("") || password.getText().equals("")))
+                if (signup.getText().equals("Sign up")) {
+                    if (!(username.getText().equals("") || password.getText().equals(""))) {
                         signupProcess();
-                    else{
+                        transitionToPassangerActivity();
+                    } else {
                         FancyToast.makeText(SignUpActivity.this, "Fill all entries", FancyToast.LENGTH_LONG,
                                 FancyToast.INFO, true).show();
-                        return;}
-                else
+                        return;
+                    }
+                } else {
                     signinProcess();
+                    transitionToPassangerActivity();
+                }
                 break;
         }
     }
@@ -130,22 +146,23 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
             }
         });
     }
-    private void signinAnonymousUser(){
+
+    private void signinAnonymousUser() {
         ParseAnonymousUtils.logIn(new LogInCallback() {
             @Override
             public void done(ParseUser user, ParseException e) {
-                if(user != null && e == null){
-                    FancyToast.makeText(SignUpActivity.this, "Sign in anonymously successfully" ,
+                if (user != null && e == null) {
+                    FancyToast.makeText(SignUpActivity.this, "Sign in anonymously successfully",
                             FancyToast.LENGTH_LONG, FancyToast.SUCCESS, true).show();
-                    user.put("Choice",choice.getText().toString());
+                    user.put("Choice", choice.getText().toString());
                     user.saveInBackground(new SaveCallback() {
                         @Override
                         public void done(ParseException e) {
-                            if(e != null)
+                            if (e != null)
                                 FancyToast.makeText(SignUpActivity.this, e.getMessage(), FancyToast.LENGTH_LONG, FancyToast.ERROR, true).show();
                         }
                     });
-                }else{
+                } else {
                     FancyToast.makeText(SignUpActivity.this, e.getMessage(), FancyToast.LENGTH_LONG, FancyToast.ERROR, true).show();
                 }
             }
