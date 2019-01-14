@@ -14,6 +14,7 @@ import android.widget.RadioGroup;
 import com.example.administrator.uber_clone.R;
 import com.google.android.gms.maps.model.LatLng;
 import com.parse.LogInCallback;
+import com.parse.Parse;
 import com.parse.ParseAnonymousUtils;
 import com.parse.ParseException;
 import com.parse.ParseInstallation;
@@ -38,7 +39,7 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_up);
         if (ParseUser.getCurrentUser() != null) {
-            transitionToPassangerActivity();
+            transitionToPassengerActivity();
         }
         ParseInstallation.getCurrentInstallation().saveInBackground();
         initalizeAllViews();
@@ -46,7 +47,7 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
         signin.setOnClickListener(this);
     }
 
-    private void transitionToPassangerActivity() {
+    private void transitionToPassengerActivity() {
         Intent intent = new Intent(SignUpActivity.this, PassengerActivity.class);
         startActivity(intent);
         finish();
@@ -65,9 +66,9 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getTitle().toString().equals("Sign in")) {
             signup.setText("Sign in");
-            item.setTitle("Sign up");
+            item.setTitle("Sign Up");
         } else {
-            signup.setText("Sign up");
+            signup.setText("Sign Up");
             item.setTitle("Sign in");
         }
         return super.onOptionsItemSelected(item);
@@ -85,7 +86,11 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
             case R.id.signupactivitySignIn:
                 if (choice.getText().toString().equals("Driver") || choice.getText().toString().equals("Passenger")) {
                     signinAnonymousUser();
-                    transitionToPassangerActivity();
+                    if (choice.getText().toString().equals("Passenger")) {
+                        transitionToPassengerActivity();
+                    } else {
+
+                    }
                 } else {
                     FancyToast.makeText(SignUpActivity.this, "Type Driver or Passenger\n" +
                                     "You type:" + choice.getText().toString(), FancyToast.LENGTH_LONG,
@@ -94,20 +99,39 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
                 }
                 break;
             case R.id.signupactivitySignup:
-                if (signup.getText().equals("Sign up")) {
-                    if (!(username.getText().equals("") || password.getText().equals(""))) {
+                if (signup.getText().equals("Sign Up")) {
+                    Log.i("TAG","Sign up");
+                    if (isEmpty() == false) {
                         signupProcess();
-                        transitionToPassangerActivity();
+                        transitionToPassengerActivity();
                     } else {
                         FancyToast.makeText(SignUpActivity.this, "Fill all entries", FancyToast.LENGTH_LONG,
                                 FancyToast.INFO, true).show();
                         return;
                     }
                 } else {
-                    signinProcess();
-                    transitionToPassangerActivity();
+                    Log.i("TAG","Sign in"+signup.getText());
+                    if (isEmpty() == false) {
+                        signinProcess();
+                        if (ParseUser.getCurrentUser().get("Choice").toString().equals("Passenger")) {
+                            transitionToPassengerActivity();
+                        } else {
+                            FancyToast.makeText(SignUpActivity.this, "Fill all entries", FancyToast.LENGTH_LONG,
+                                    FancyToast.INFO, true).show();
+                        }
+                    } else {
+
+                    }
                 }
                 break;
+        }
+    }
+    /*Check whether any feild is empty or not*/
+    private Boolean isEmpty(){
+        if((username.getText().equals("") || password.getText().equals(""))){
+            return true;
+        }else {
+            return false;
         }
     }
 
@@ -116,9 +140,7 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
         ParseUser parseUser = new ParseUser();
         parseUser.setUsername(username.getText().toString());
         parseUser.setPassword(password.getText().toString());
-        int radioButtonId = radioGroup.getCheckedRadioButtonId();
-        RadioButton radioButton = findViewById(radioButtonId);
-        parseUser.put("Choice", radioButton.getText().toString());
+        parseUser.put("Choice", DriverOrPassenger());
         parseUser.signUpInBackground(new SignUpCallback() {
             @Override
             public void done(ParseException e) {
@@ -132,7 +154,7 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
             }
         });
     }
-
+/*function to complete signin process*/
     private void signinProcess() {
         ParseUser.logInInBackground(username.getText().toString(), password.getText().toString(), new LogInCallback() {
             @Override
@@ -146,7 +168,7 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
             }
         });
     }
-
+/*function to signin user anonymously*/
     private void signinAnonymousUser() {
         ParseAnonymousUtils.logIn(new LogInCallback() {
             @Override
@@ -167,5 +189,10 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
                 }
             }
         });
+    }
+    private String DriverOrPassenger(){
+        int radioButtonId = radioGroup.getCheckedRadioButtonId();
+        RadioButton radioButton = findViewById(radioButtonId);
+        return radioButton.getText().toString();
     }
 }
