@@ -42,7 +42,7 @@ public class PassengerActivity extends FragmentActivity implements OnMapReadyCal
     private GoogleMap mMap;
     private LocationManager locationManager;
     private LocationListener locationListener;
-    private Button button, signoutButton;
+    private Button button;
 
     //  private Boolean onCancelled = true;
     @Override
@@ -50,7 +50,7 @@ public class PassengerActivity extends FragmentActivity implements OnMapReadyCal
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_passenger);
         button = findViewById(R.id.passengerButton);
-        signoutButton = findViewById(R.id.passengerSignOutButton);
+        Button signoutButton = findViewById(R.id.passengerSignOutButton);
         signoutButton.setOnClickListener(this);
         button.setOnClickListener(this);
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
@@ -118,7 +118,6 @@ public class PassengerActivity extends FragmentActivity implements OnMapReadyCal
 
 
             }
-            //           Log.i("onRequest", "" + requestCode);
         }
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
