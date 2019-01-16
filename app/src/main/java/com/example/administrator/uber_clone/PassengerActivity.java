@@ -236,7 +236,7 @@ public class PassengerActivity extends FragmentActivity implements OnMapReadyCal
                         Log.i("TAG", "getting request");
                         button.setText("Cancel Car");
                     } else {
-                        Log.i("TAG", e.getMessage());
+                        return;
                     }
                 }
             });
