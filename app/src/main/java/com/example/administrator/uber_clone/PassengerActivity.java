@@ -162,7 +162,7 @@ public class PassengerActivity extends FragmentActivity implements OnMapReadyCal
                     ParseObject parseObject = new ParseObject("RequestCar");
                     parseObject.put("username", ParseUser.getCurrentUser().getUsername());
                     Location location = settingLocationListnerAndGetLocation();
-                    ParseGeoPoint parseGeoPoint = new ParseGeoPoint(location.getLatitude(), location.getLatitude());
+                    ParseGeoPoint parseGeoPoint = new ParseGeoPoint(location.getLatitude(), location.getLongitude());
                     parseObject.put("Location", parseGeoPoint);
                     parseObject.saveInBackground(new SaveCallback() {
                         @Override
